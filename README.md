@@ -17,7 +17,7 @@ Dataset: [MNIST handwritten digit database](http://yann.lecun.com/exdb/mnist/).
             <img src="plots/00000.png">
         </td>
         <td style="width: 50%;">
-            <img src="plots/00000.png">
+            <img src="plots/00321.png">
         </td>
     </tr>
 </table>
