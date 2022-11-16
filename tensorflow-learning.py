@@ -28,7 +28,7 @@ def get_data(
     if use_cache and os.path.exists(data_dir):
 
         # Load data
-        logging.info('Using cache')
+        logging.info('Using data cache')
         with open(data_dir, 'rb') as f:
             train_x, train_y, test_x, test_y = dill.load(f)
 
@@ -36,9 +36,13 @@ def get_data(
     else:
 
         # Get the training data from Keras
-        logging.info('Not using cache')
+        logging.info('Not using data cache')
         from keras.datasets import mnist
         (train_x, train_y), (test_x, test_y) = mnist.load_data()
+
+        # Normalize
+        train_x = train_x / 255
+        test_x = test_x / 255
 
         # Delete old data if present
         if os.path.exists(data_dir):
@@ -85,25 +89,89 @@ def make_model() -> tf.keras.models.Sequential:
     return model
 
 
-def train_cnn(
-) -> None:
+def train_model(
+        model: tf.keras.models.Sequential,
+        train_x: np.ndarray,
+        train_y: np.ndarray,
+        test_x: np.ndarray,
+        test_y: np.ndarray,
+        use_cache: bool = False,
+) -> tf.keras.models.Sequential:
     """
     Create the CNN and train it on the data
-    :return:
+    :return: the model
     """
 
-    # Get the training data from Keras. Cached locally after first load.
-    # 60,000 in train, 10,000 in test. images are 28 x 28.
-    train_x, train_y, test_x, test_y = get_data(use_cache=True)
+    # If the cache should be used and the folder exists
+    model_name = 'model'
+    model_path = os.path.join(os.getcwd(), model_name)
+    if use_cache and os.path.exists(model_path):
+        logging.info('Loading cached model')
+        model = tf.keras.models.load_model(model_path)
 
-    # Normalize the x data to be between 0 and 1.
-    train_x = train_x / 255
-    test_x = test_x / 255
+    # If not using the cache, train
+    else:
 
-    # Make the CNN model
+        # Compile the model
+        model.compile(
+            optimizer='adam',
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+            metrics=['accuracy'],
+        )
+
+        # Train the model
+        logging.info('Training model')
+        model.fit(
+            x=train_x,
+            y=train_y,
+            epochs=4,
+            validation_data=(test_x, test_y),
+        )
+
+        # Save the model
+        if os.path.exists(model_path):
+            shutil.rmtree(model_path)
+        model.save(model_path)
+
+    # Return the trained model
+    return model
+
+
+def get_trained_model(
+        use_data_cache: bool = True,
+        use_model_cache: bool = True,
+) -> tf.keras.models.Sequential:
+
+    # Get data
+    if use_model_cache:
+        use_data_cache = True
+    train_x, train_y, test_x, test_y = get_data(use_cache=use_data_cache)
+
+    # Get model
     model = make_model()
+
+    # Train model
+    model = train_model(
+        model=model,
+        train_x=train_x,
+        train_y=train_y,
+        test_x=test_x,
+        test_y=test_y,
+        use_cache=use_model_cache,
+    )
+
+    # Return trained model
+    return model
+
+
+def run():
+
+    model = get_trained_model(
+        use_data_cache=True,
+        use_model_cache=True,
+    )
 
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
-    train_cnn()
+    run()
