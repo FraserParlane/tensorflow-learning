@@ -56,7 +56,7 @@ def get_data(
     return train_x, train_y, test_x, test_y
 
 
-def make_model() -> tf.keras.models.Sequential:
+def make_model() -> tf.keras.Model:
     """
     Make the CNN model for training
     :return: The model.
@@ -90,12 +90,12 @@ def make_model() -> tf.keras.models.Sequential:
 
 
 def train_model(
-        model: tf.keras.models.Sequential,
+        model: tf.keras.Model,
         train_x: np.ndarray,
         train_y: np.ndarray,
         test_x: np.ndarray,
         test_y: np.ndarray,
-) -> tf.keras.models.Sequential:
+) -> tf.keras.Model:
     """
     Create the CNN and train it on the data
     :return: the model
@@ -130,7 +130,7 @@ def train_model(
 def get_trained_model(
         use_data_cache: bool = True,
         use_model_cache: bool = True,
-) -> tf.keras.models.Sequential:
+) -> tf.keras.Model:
 
     # If using cache, return
     model_path = os.path.join(os.getcwd(), 'model')
