@@ -95,43 +95,33 @@ def train_model(
         train_y: np.ndarray,
         test_x: np.ndarray,
         test_y: np.ndarray,
-        use_cache: bool = False,
 ) -> tf.keras.models.Sequential:
     """
     Create the CNN and train it on the data
     :return: the model
     """
 
-    # If the cache should be used and the folder exists
-    model_name = 'model'
-    model_path = os.path.join(os.getcwd(), model_name)
-    if use_cache and os.path.exists(model_path):
-        logging.info('Loading cached model')
-        model = tf.keras.models.load_model(model_path)
+    # Compile the model
+    model.compile(
+        optimizer='adam',
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+        metrics=['accuracy'],
+    )
 
-    # If not using the cache, train
-    else:
+    # Train the model
+    logging.info('Training model')
+    model.fit(
+        x=train_x,
+        y=train_y,
+        epochs=4,
+        validation_data=(test_x, test_y),
+    )
 
-        # Compile the model
-        model.compile(
-            optimizer='adam',
-            loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-            metrics=['accuracy'],
-        )
-
-        # Train the model
-        logging.info('Training model')
-        model.fit(
-            x=train_x,
-            y=train_y,
-            epochs=4,
-            validation_data=(test_x, test_y),
-        )
-
-        # Save the model
-        if os.path.exists(model_path):
-            shutil.rmtree(model_path)
-        model.save(model_path)
+    # Save the model
+    model_path = os.path.join(os.getcwd(), 'model')
+    if os.path.exists(model_path):
+        shutil.rmtree(model_path)
+    model.save(model_path)
 
     # Return the trained model
     return model
@@ -142,32 +132,44 @@ def get_trained_model(
         use_model_cache: bool = True,
 ) -> tf.keras.models.Sequential:
 
-    # Get data
-    if use_model_cache:
-        use_data_cache = True
-    train_x, train_y, test_x, test_y = get_data(use_cache=use_data_cache)
+    # If using cache, return
+    model_path = os.path.join(os.getcwd(), 'model')
+    if use_model_cache and os.path.exists(model_path):
+        logging.info('Loading cached model')
+        model = tf.keras.models.load_model(model_path)
+        return model
 
-    # Get model
-    model = make_model()
+    # Don't use cache
+    else:
 
-    # Train model
-    model = train_model(
-        model=model,
-        train_x=train_x,
-        train_y=train_y,
-        test_x=test_x,
-        test_y=test_y,
-        use_cache=use_model_cache,
-    )
+        # Get data
+        train_x, train_y, test_x, test_y = get_data(
+            use_cache=use_data_cache
+        )
 
-    # Return trained model
-    return model
+        # Get model
+        model = make_model()
+
+        # Train model
+        model = train_model(
+            model=model,
+            train_x=train_x,
+            train_y=train_y,
+            test_x=test_x,
+            test_y=test_y,
+        )
+
+        # Return trained model
+        return model
 
 
 def run():
 
+    # Get the data
+    train_x, train_y, test_x, test_y = get_data(use_cache=True)
+
+    # Get the model
     model = get_trained_model(
-        use_data_cache=True,
         use_model_cache=True,
     )
 
