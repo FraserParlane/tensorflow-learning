@@ -5,11 +5,15 @@ Dataset: [MNIST handwritten digit database](http://yann.lecun.com/exdb/mnist/).
 
 <table>
     <tr>
-        <td style="width: 50%;">
-            Title
+        <td style="width: 50%; border: none;">
+            <center>
+                An example of a correct label
+            </center>
         </td>
         <td style="width: 50%;">
-            Title
+            <center>
+                An example of an incorrect label
+            </center>
         </td>
     </tr>
     <tr>
@@ -21,10 +25,3 @@ Dataset: [MNIST handwritten digit database](http://yann.lecun.com/exdb/mnist/).
         </td>
     </tr>
 </table>
-
-| A correct label                         | An incorrect label |
-|-----------------------------------------------| --- |
-| !['Example of correct label'](plots/00000.png) | !['Example of incorrect label'](plots/00321.png) |
-
-
-
