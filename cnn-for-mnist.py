@@ -170,11 +170,11 @@ def plot_test_data(
         n: int = 0,
 ) -> None:
     """
-    Plot the probabilities for a given test value.
-    :param model: The model to predict with.
-    :param test_x: The test values.
-    :param test_y: The train values.
-    :param n: The index to visualize.
+    Plot the probabilities for a given test value
+    :param model: The model to predict with
+    :param test_x: The test values
+    :param test_y: The train values
+    :param n: The index to visualize
     :return: None
     """
 
@@ -187,7 +187,7 @@ def plot_test_data(
     # Create the figure
     figure: plt.Figure = plt.figure(
         dpi=300,
-        figsize=(5, 8)
+        figsize=(4, 8)
     )
     im_ax: plt.Axes = figure.add_subplot(2, 1, 1)
     prob_ax = plt.Axes = figure.add_subplot(4, 1, 3)
@@ -196,7 +196,7 @@ def plot_test_data(
     # Plot image
     im_ax.imshow(
         test_x[n],
-        cmap='bone_r',
+        cmap='Greys',
     )
 
     # Plot prob, log_prob
@@ -221,7 +221,7 @@ def plot_test_data(
     prob_ax.text(
         0,
         1.1,
-        'label:',
+        'True label:',
         clip_on=False,
         transform=prob_ax.transAxes,
         horizontalalignment='right',
@@ -242,19 +242,22 @@ def plot_test_data(
     # Format bars
     for ax in [prob_ax, log_prob_ax]:
         ax.set_xticks(x)
-        y_range = [0, 1]
-        ax.set_yticks(y_range)
-        ax.set_yticklabels([str(l) for l in y_range])
-        ax.set_ylim(y_range)
         for pos in ['top', 'right']:
             ax.spines[pos].set_visible(False)
-    log_prob_ax.set_yscale('symlog')
-    prob_ax.set_ylabel('probability')
-    log_prob_ax.set_ylabel('symlog\n probability', labelpad=-7)
+    y_range = [0, 1]
+    prob_ax.set_yticks(y_range)
+    prob_ax.set_ylim(y_range)
+    log_prob_ax.set_yscale('log')
+    prob_ax.set_ylabel('predicted\nprobability')
+    log_prob_ax.set_ylabel('log predicted\nprobability')
 
     # Format figure
     figure.subplots_adjust(
         hspace=0.3,
+        left=0.25,
+        right=0.85,
+        top=0.98,
+        bottom=0.1,
 
     )
 
@@ -265,9 +268,12 @@ def plot_test_data(
     figure.savefig(os.path.join(folder, f'{str(n).zfill(5)}.png'))
 
 
-def plot_bad():
+def plot_bad(
+        n: int = 10,
+):
     """
-    Make a plot of all the mislabelled images.
+    Make a plot of all the mislabelled images
+    :param n: the number of bad plots to make.
     :return: None
     """
 
@@ -280,7 +286,7 @@ def plot_bad():
     )
 
     # For each test value
-    for n, (i_test_x, i_test_y) in tqdm(
+    for i, (i_test_x, i_test_y) in tqdm(
         enumerate(zip(test_x, test_y)),
         total=len(test_x),
     ):
@@ -297,10 +303,57 @@ def plot_bad():
                 model=model,
                 test_x=test_x,
                 test_y=test_y,
-                n=n,
+                n=i,
             )
+
+            # Only perform for n images.
+            n -= 1
+            if n == 0:
+                break
+
+
+def plot_n(
+        n: int = 0,
+) -> None:
+    """
+    Plot
+    :param n: Plot the first n pred.
+    :return: None
+    """
+
+    # Get the data
+    train_x, train_y, test_x, test_y = get_data(use_cache=True)
+
+    # Get the model
+    model = get_trained_model(
+        use_model_cache=True,
+    )
+
+    # For the first n images
+    for i in tqdm(range(n)):
+
+        # Plot example
+        plot_test_data(
+            model=model,
+            test_x=test_x,
+            test_y=test_y,
+            n=i,
+        )
+
+
+def run():
+    """
+    Train the model and plot some examples.
+    :return: None
+    """
+    logging.getLogger().setLevel(logging.INFO)
+    model = get_trained_model(
+        use_data_cache=False,
+        use_model_cache=False,
+    )
+    plot_n(n=10)
+    plot_bad(n=10)
 
 
 if __name__ == '__main__':
-    # logging.getLogger().setLevel(logging.INFO)
-    plot_bad()
+    run()
