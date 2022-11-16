@@ -3,13 +3,13 @@ I used TensorFlow to create a CNN to predict the MNIST handwritten digit dataset
 
 Dataset: [MNIST handwritten digit database](http://yann.lecun.com/exdb/mnist/).
 
-<table style="border: none;">
+<table>
     <tr>
-        <td style="width: 50%; text-align: center;">
-            An example of a correct label
+        <td style="width: 50%;">
+            <b>An example of a correct label</b>
         </td>
-        <td style="width: 50%; text-align: center;">
-            An example of an incorrect label
+        <td style="width: 50%;">
+            <b>An example of an incorrect label</b>
         </td>
     </tr>
     <tr>
